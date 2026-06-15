@@ -1,0 +1,70 @@
+*geminiask.txt* Plugin for streaming continuous conversation using Gemini API
+
+==============================================================================
+INTRODUCTION                                            *geminiask-introduction*
+
+|geminiask| is a Vim9script plugin that allows you to chat directly with AI 
+from within Vim using Google's Gemini API.
+
+It supports asynchronous execution (job) and streaming (SSE), allowing 
+generated responses to be written to a buffer in real-time without locking 
+the Vim screen. A key feature is its smart behavior: it will not open the 
+buffer window until the first piece of data arrives.
+
+==============================================================================
+SETUP                                                      *geminiask-setup*
+
+Before using this plugin, you need to set your Gemini API key in your 
+`~/.vimrc` (or `_vimrc`).
+
+g:geminiask_apikey                                      *g:geminiask_apikey*
+        Sets the Gemini API access key (Required).
+        Example:
+>
+        g:geminiask_apikey = 'AIzaSy...'
+<
+
+g:geminiask_model                                        *g:geminiask_model*
+        Sets the Gemini model name to be used (Optional).
+        Default value: 'gemini-2.5-flash'
+        Example:
+>
+        g:geminiask_model = 'gemini-2.5-pro'
+<
+
+==============================================================================
+COMMANDS                                                 *geminiask-commands*
+
+:GeminiAsk {prompt}                                             *:GeminiAsk*
+        Sends the {prompt} content to Gemini while maintaining the current 
+        conversation thread (history).
+
+:GeminiAskNew {prompt}                                       *:GeminiAskNew*
+        Completely clears the previous conversation history and the existing 
+        output buffer, and sends the {prompt} content in a new thread.
+
+:GeminiAskWithBuffer {prompt}                         *:GeminiAskWithBuffer*
+        Maintains the current conversation thread (history) and attaches the 
+        entire content of the currently active buffer as a code block, then 
+        sends the {prompt}. This is useful for asking questions or giving 
+        refactoring instructions for your existing code.
+
+:GeminiAskWithBufferNew {prompt}                   *:GeminiAskWithBufferNew*
+        Completely clears the previous conversation history and the existing 
+        output buffer, attaches the current buffer content, and sends the 
+        {prompt} to Gemini.
+
+:GeminiClear                                                   *:GeminiClear*
+        Initializes the conversation history (context) and forcefully deletes 
+        (bwipeout) the open `GeminiAsk` buffer and window.
+
+==============================================================================
+BUFFER SPECIFICATIONS                                      *geminiask-buffer*
+
+AI responses are output in Markdown format (filetype=markdown) to a special 
+scratch buffer (nofile) named `GeminiAsk`.
+When the transmission ends, a separator (---) is automatically inserted, 
+and it becomes ready to accept the next question.
+
+==============================================================================
+vim:tw=78:ts=8:ft=help:norl:

@@ -1,1 +1,1 @@
-See [doc](doc/geminiask.txt).
+See [doc](doc).
