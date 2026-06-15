@@ -1,9 +1,5 @@
 *geminiask.txt* Gemini APIを用いたストリーミング継続会話プラグイン
 
-Version: 1.0
-Author: hokorobi
-License: MIT License
-
 ==============================================================================
 概要                                                    *geminiask-introduction*
 
