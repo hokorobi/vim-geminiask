@@ -1,0 +1,71 @@
+*geminiask.txt* Gemini APIを用いたストリーミング継続会話プラグイン
+
+Version: 1.0
+Author: hokorobi
+License: MIT License
+
+==============================================================================
+概要                                                    *geminiask-introduction*
+
+|geminiask| は、Googleの Gemini API を利用して、Vim上から直接AIとチャットを
+行うための Vim9script 製プラグインです。
+
+非同期（job）とストリーミング（SSE）に対応しており、Vimの画面をロックする
+ことなく、生成された回答がリアルタイムにバッファへ書き込まれます。また、
+最初のデータが届くまではバッファウィンドウを開かないスマートな挙動が特徴です。
+
+==============================================================================
+設定                                                       *geminiask-setting*
+
+プラグインを使用する前に、`~/.vimrc`（または `_vimrc`）に Gemini API の
+キーを設定する必要があります。
+
+g:geminiask_apikey                                      *g:geminiask_apikey*
+        Gemini APIのアクセスキーを設定します（必須）。
+        設定例:
+>
+        g:geminiask_apikey = 'AIzaSy...'
+<
+
+g:geminiask_model                                        *g:geminiask_model*
+        使用する Gemini のモデル名を設定します（任意）。
+        デフォルト値: 'gemini-2.5-flash'
+        設定例:
+>
+        g:geminiask_model = 'gemini-2.5-pro'
+<
+
+==============================================================================
+コマンド                                                  *geminiask-commands*
+
+:GeminiAsk {prompt}                                             *:GeminiAsk*
+        現在の会話スレッド（履歴）を維持したまま、{prompt} の内容を
+        Gemini に送信します。
+
+:GeminiAskNew {prompt}                                       *:GeminiAskNew*
+        これまでの会話履歴と既存の出力バッファを完全にクリアし、
+        新しいスレッドで {prompt} の内容を Gemini に送信します。
+
+:GeminiAskWithBuffer {prompt}                         *:GeminiAskWithBuffer*
+        現在の会話スレッド（履歴）を維持したまま、現在アクティブなバッファ
+        の全内容をコードブロックとして添付し、{prompt} を送信します。
+        既存のコードへのリファクタリング指示や質問に便利です。
+
+:GeminiAskWithBufferNew {prompt}                   *:GeminiAskWithBufferNew*
+        これまでの会話履歴と既存の出力バッファを完全にクリアした上で、
+        現在のバッファ内容を添付して {prompt} を Gemini に送信します。
+
+:GeminiClear                                                   *:GeminiClear*
+        会話履歴（コンテキスト）を初期化し、開いている `GeminiAsk` バッファ
+        およびウィンドウを強制的に削除（bwipeout）します。
+
+==============================================================================
+バッファの仕様                                               *geminiask-buffer*
+
+AIの回答は、`GeminiAsk` という名前の特別なスクラッチバッファ（nofile）に
+Markdown形式（filetype=markdown）で出力されます。
+通信終了時には自動的に区切り線（---）が挿入され、次の質問を受け付ける状態に
+なります。
+
+==============================================================================
+vim:tw=78:ts=8:ft=help:norl:
