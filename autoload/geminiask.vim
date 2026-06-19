@@ -2,8 +2,6 @@ vim9script
 
 # 会話履歴を保持するリスト
 var chat_history: list<dict<any>> = []
-final api_key = get(g:, 'geminiask_apikey', '')
-final model = get(g:, 'geminiask_model', 'gemini-2.5-flash')
 
 # データ受信後に一度だけ呼ばれるバッファ作成関数（内部用）
 def PrepareBufferAfterResponse(prompt: string): number
@@ -37,6 +35,8 @@ enddef
 
 # コアとなる送信処理（ストリーミング・内部用）
 def SendToGemini(prompt: string)
+  final api_key = get(g:, 'geminiask_apikey', '')
+  final model = get(g:, 'geminiask_model', 'gemini-2.5-flash')
   const url = $'https://generativelanguage.googleapis.com/v1beta/models/{model}:streamGenerateContent?alt=sse&key={api_key}'
   const json_body = json_encode({ contents: chat_history })
   const cmd = ['curl', '-s', '-N', '-X', 'POST', '-H', 'Content-Type: application/json', '-d', '@-', url]
@@ -113,6 +113,7 @@ enddef
 
 # 【共通内部関数①】バリデーション・履歴追加・送信開始
 def ExecuteAsk(prompt: string, display_prompt: string, msg: string)
+  final api_key = get(g:, 'geminiask_apikey', '')
   if api_key == '' | echoerr 'GeminiAsk: g:geminiask_apikey が設定されていません。' | return | endif
   if prompt == '' | echo 'GeminiAsk: 質問が空です。' | return | endif
 
