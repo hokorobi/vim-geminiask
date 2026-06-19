@@ -5,7 +5,6 @@ if exists('g:loaded_geminiask')
 endif
 g:loaded_geminiask = 1
 
-# コマンドの定義（autoload関数を呼び出す）
 command! -nargs=+ GeminiAsk geminiask#GeminiAsk(<q-args>)
 command! -nargs=+ GeminiAskNew geminiask#GeminiAskNew(<q-args>)
 command! -nargs=+ GeminiAskWithBuffer geminiask#GeminiAskWithBuffer(<q-args>)

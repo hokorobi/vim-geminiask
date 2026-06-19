@@ -1,9 +1,9 @@
 vim9script
 
-# 会話履歴を保持するリスト
+# List to hold conversation history
 var chat_history: list<dict<any>> = []
 
-# データ受信後に一度だけ呼ばれるバッファ作成関数（内部用）
+# Internal function to create a buffer only once after data is received
 def PrepareBufferAfterResponse(prompt: string): number
   const buf_nr = bufnr('^GeminiAsk$')
   var win_id = -1
@@ -33,7 +33,7 @@ def PrepareBufferAfterResponse(prompt: string): number
   return line('$')
 enddef
 
-# コアとなる送信処理（ストリーミング・内部用）
+# Core transmission process (Streaming / Internal use)
 def SendToGemini(prompt: string)
   final api_key = get(g:, 'geminiask_apikey', '')
   final model = get(g:, 'geminiask_model', 'gemini-2.5-flash')
@@ -90,7 +90,7 @@ def SendToGemini(prompt: string)
     },
     close_cb: (channel) => {
       if full_reply == ''
-        echoerr 'GeminiAsk: Geminiから応答がありませんでした。'
+        echoerr 'GeminiAsk: No response from Gemini.'
         return
       endif
 
@@ -100,7 +100,7 @@ def SendToGemini(prompt: string)
       var last_line = line('$')
       append(last_line, ['', '---', ''])
       normal! G
-      echo 'GeminiAsk: 回答が完了しました。'
+      echo 'GeminiAsk: Response complete.'
     }
   })
 
@@ -111,11 +111,11 @@ def SendToGemini(prompt: string)
   endif
 enddef
 
-# 【共通内部関数①】バリデーション・履歴追加・送信開始
+# [Internal Shared Function 1] Validation, History Addition, and Transmission Start
 def ExecuteAsk(prompt: string, display_prompt: string, msg: string)
   final api_key = get(g:, 'geminiask_apikey', '')
-  if api_key == '' | echoerr 'GeminiAsk: g:geminiask_apikey が設定されていません。' | return | endif
-  if prompt == '' | echo 'GeminiAsk: 質問が空です。' | return | endif
+  if api_key == '' | echoerr 'GeminiAsk: g:geminiask_apikey is not set.' | return | endif
+  if prompt == '' | echo 'GeminiAsk: Prompt is empty.' | return | endif
 
   echo msg
 
@@ -125,7 +125,7 @@ def ExecuteAsk(prompt: string, display_prompt: string, msg: string)
   SendToGemini(display_prompt)
 enddef
 
-# 【共通内部関数②】現在のVimバッファの内容を含んだプロンプトを構築して送信
+# [Internal Shared Function 2] Construct a prompt including current Vim buffer contents and send
 def ExecuteAskWithBuffer(prompt: string, is_new: bool)
   if is_new
     export#GeminiClear()
@@ -135,7 +135,7 @@ def ExecuteAskWithBuffer(prompt: string, is_new: bool)
   const filetype = &filetype
 
   var full_prompt = prompt .. "\n\n"
-  full_prompt ..= "--- 対象のバッファ内容 ---\n"
+  full_prompt ..= "--- Target Buffer Contents ---\n"
   if filetype != ''
     full_prompt ..= $'```{filetype}' .. "\n"
   endif
@@ -144,11 +144,11 @@ def ExecuteAskWithBuffer(prompt: string, is_new: bool)
     full_prompt ..= "```\n"
   endif
 
-  var display_prompt = prompt .. " (現在のバッファ内容を添付"
-  var msg = 'GeminiAsk: バッファ内容を含めて Geminiに問い合わせ中...'
+  var display_prompt = prompt .. " (Attaching current buffer contents"
+  var msg = 'GeminiAsk: Querying Gemini with buffer contents...'
   if is_new
-    display_prompt ..= '・新規スレッド)'
-    msg = 'GeminiAsk: 履歴をクリアし、バッファ内容を含めて Geminiに問い合わせ中...'
+    display_prompt ..= ', new thread)'
+    msg = 'GeminiAsk: Clearing history and querying Gemini with buffer contents...'
   else
     display_prompt ..= ')'
   endif
@@ -156,30 +156,30 @@ def ExecuteAskWithBuffer(prompt: string, is_new: bool)
   ExecuteAsk(full_prompt, display_prompt, msg)
 enddef
 
-# --- 以下、外部（plugin/側）に公開するインターフェース関数 ---
+# --- Public interface functions (exposed to plugin/ side) ---
 
-# 通常の質問関数
+# Standard query function
 export def GeminiAsk(prompt: string)
-  ExecuteAsk(prompt, prompt, 'GeminiAsk: Geminiに問い合わせ中...')
+  ExecuteAsk(prompt, prompt, 'GeminiAsk: Querying Gemini...')
 enddef
 
-# 単発の質問関数
+# Single-shot query function (New thread)
 export def GeminiAskNew(prompt: string)
   export#GeminiClear()
-  ExecuteAsk(prompt, prompt, 'GeminiAsk: 新しいスレッドで Geminiに問い合わせ中...')
+  ExecuteAsk(prompt, prompt, 'GeminiAsk: Querying Gemini in a new thread...')
 enddef
 
-# 現在のバッファ内容を添付して質問する関数
+# Query function with current buffer contents attached
 export def GeminiAskWithBuffer(prompt: string)
   ExecuteAskWithBuffer(prompt, false)
 enddef
 
-# 現在のバッファ内容を添付し、新しく会話を始める関数
+# Query function with current buffer contents attached to start a new conversation
 export def GeminiAskWithBufferNew(prompt: string)
   ExecuteAskWithBuffer(prompt, true)
 enddef
 
-# 会話履歴とバッファ自体を完全に削除する関数
+# Function to completely clear conversation history and delete the buffer itself
 export def GeminiClear()
   if chat_history == []
     return
@@ -196,5 +196,5 @@ export def GeminiClear()
       execute $'bwipeout! {buf_nr}'
     endif
   endif
-  echo 'GeminiAsk: 会話履歴をクリアし、バッファを削除しました。'
+  echo 'GeminiAsk: Conversation history cleared and buffer deleted.'
 enddef
