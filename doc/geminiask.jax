@@ -3,7 +3,7 @@
 ==============================================================================
 概要                                                    *geminiask-introduction*
 
-|geminiask| は、Googleの Gemini API を利用して、Vim上から直接AIとチャットを
+|vim-geminiask| は、Googleの Gemini API を利用して、Vim上から直接AIとチャットを
 行うための Vim9script 製プラグインです。
 
 非同期（job）とストリーミング（SSE）に対応しており、Vimの画面をロックする

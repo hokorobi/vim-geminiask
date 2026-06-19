@@ -3,7 +3,7 @@
 ==============================================================================
 INTRODUCTION                                            *geminiask-introduction*
 
-|geminiask| is a Vim9script plugin that allows you to chat directly with AI 
+|vim-geminiask| is a Vim9script plugin that allows you to chat directly with AI 
 from within Vim using Google's Gemini API.
 
 It supports asynchronous execution (job) and streaming (SSE), allowing 
